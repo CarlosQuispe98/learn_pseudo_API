@@ -1,45 +1,23 @@
 from flask import Flask, render_template, request, jsonify
 from hashlib import sha512
-from UsuarioClase import Usuario
+from Clases.Usuario import Usuario
+from Database.Consultas import loginDb, getUserDataDb
 
 app = Flask(__name__)
-
-@app.route('/')
-def index():
-    datos = {
-        "nombres": "Carlos Alberto",
-        "apellidos": "Quispe Leon",
-        "edad": 22,
-        "sexo": "Masculino"
-    }
-
-    return jsonify(datos)
 
 @app.route('/login', methods=['POST'])
 def login():
     usuario = request.json['username']
     contrasena = request.json['password']
     #contrasena = sha512(str(request.json['password']).encode()).hexdigest()
+    response_db = loginDb(usuario, contrasena)
 
-    if usuario == 'carlosql2598' and contrasena == '12345678':
-        usuario = Usuario()
-        usuario.getDatos()
-        
-        server_response = {
-            "exito": True,
-            "resultado": usuario.getJson()
-        }
-    else:
-        server_response = {
-            "exito": False,
-            "resultado": ""
-        }
+    return jsonify(response_db)
 
-    return jsonify(server_response)
-
-#@app.route('/second/<nombre>/')
-#def second(nombre):
-#    return render_template("second.html", nombre=nombre)
+@app.route('/usuario/<nombre_usuario>/')
+def second(nombre_usuario):
+    response_db = getUserDataDb(nombre_usuario)
+    return jsonify(response_db)
     
 
 if __name__ == "__main__":
